@@ -22,7 +22,8 @@ import { SignupPage } from "./signuppage.js";
                         ...HomeUI,},{
                         id:"settings_page",
                         ...settings,
-                    },{
+                    }
+                    ,{
                         id:"login",
                         ...LoginPage,
                     },{

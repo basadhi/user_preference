@@ -110,29 +110,31 @@ export const settings = {
 };
 
 // Mobile menu popup for small screens
-webix.ui({
-    view: "popup",
-    id: "settingsMobileMenu",
-    width: 250,
-    body: {
-        view: "list",
-        select: true,
-        data: [
-            { id: "acc_settings", value: "Account", icon: "user" },
-            { id: "pr_settings", value: "Privacy", icon: "lock" },
-            { id: "not_settings", value: "Notifications", icon: "bell" },
-            { id: "theme_settings", value: "Appearance", icon: "paint-brush" }
-        ],
-        template: "<div class='mobile-menu-item'><span class='webix_icon fa-#icon#'></span> #value#</div>",
-        on: {
-            onItemClick: function(id) {
-                $$("settingsNavigation").setValue(id);
-                $$("settingsMultiview").setValue(id);
-                $$("settingsMobileMenu").hide();
+if (!$$("settingsMobileMenu")) {
+    webix.ui({
+        view: "popup",
+        id: "settingsMobileMenu",
+        width: 250,
+        body: {
+            view: "list",
+            select: true,
+            data: [
+                { id: "acc_settings", value: "Account", icon: "user" },
+                { id: "pr_settings", value: "Privacy", icon: "lock" },
+                { id: "not_settings", value: "Notifications", icon: "bell" },
+                { id: "theme_settings", value: "Appearance", icon: "paint-brush" }
+            ],
+            template: "<div class='mobile-menu-item'><span class='webix_icon fa-#icon#'></span> #value#</div>",
+            on: {
+                onItemClick: function(id) {
+                    $$("settingsNavigation").setValue(id);
+                    $$("settingsMultiview").setValue(id);
+                    $$("settingsMobileMenu").hide();
+                }
             }
         }
-    }
-});
+    });
+}
 
 // Optional: Add responsive CSS
 webix.html.addStyle(`

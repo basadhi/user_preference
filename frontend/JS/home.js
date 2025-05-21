@@ -31,7 +31,7 @@ export const HomeUI = {
                                     value: "Login",
                                     css: "webix_primary",
                                     click: function () {
-                                        $$("main_content").setValue("login");
+                                        //$$("main_content").setValue("login");
                                         webix.message("Login clicked");
                                     }
                                 },

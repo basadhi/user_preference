@@ -1,4 +1,4 @@
-// import { authenticateUser } from "../utils/dataService.js";
+import { authenticateUser } from "./utils/dataService.js";
 //import { isMobile } from "../utils/isMobile.js";
 
 export const LoginPage = {
