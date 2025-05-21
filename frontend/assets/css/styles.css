@@ -1,0 +1,28 @@
+body {
+    background: linear-gradient(to right, #e3f2fd, #ffffff);
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .header {
+    background-color: #0d47a1;
+    color: white;
+    font-size: 20px;
+    line-height: 60px;
+  }
+  
+  .webix_view.webix_form {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .form-icon {
+    width: 20px;
+    margin-right: 5px;
+  }
+  
+  img.theme-preview {
+    width: 100px;
+    border-radius: 5px;
+  }
+    

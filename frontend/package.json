@@ -1,0 +1,12 @@
+{
+  "name": "user-preferences-frontend",
+  "version": "1.0.0",
+  "description": "User Preferences Frontend using Webix",
+  "scripts": {
+    "start": "live-server",
+    "dev": "live-server"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+} 
