@@ -37,7 +37,7 @@ export const AccountForm = {
               {
                 template: "<h2>Profile Settings</h2>",
                 type: "header",
-                height: 50,
+                height: 80,
                 //css: "form-header"
               },
               {
@@ -74,6 +74,7 @@ export const AccountForm = {
                             value: "Change Photo",
                             accept: "image/*",
                             multiple: false,
+                            height: 100,
                             //css: "modern-uploader",
                             on: {
                               onBeforeFileAdd: function (file) {
@@ -115,36 +116,7 @@ export const AccountForm = {
                   phone: function (v) { return /^[0-9]{10}$/.test(v); }
                 }
               },
-              {
-                template: "<h2>Personal Information</h2>",
-                type: "header",
-                //css: "form-header"
-              },
-              {
-                view: "form",
-                id: "personal_form",
-                //css: "modern-form",
-                elements: [
-                  { view: "textarea", label: "Address", name: "address", css: "form-field" },
-                  { view: "radio", label: "Gender", name: "gender", css: "form-field", options: [
-                    { id: "male", value: "Male" },
-                    { id: "female", value: "Female" },
-                    { id: "other", value: "Other" }
-                  ] },
-                  { view: "richselect", label: "Marital Status", name: "marital_status", css: "form-field", options: [
-                    "Single", "Married", "Divorced", "Widowed", "Other"
-                  ] },
-                  { view: "datepicker", label: "Date of Birth", name: "date_of_birth", format: "%d/%m/%Y", css: "form-field" },
-                  { view: "text", label: "Occupation", name: "occupation", css: "form-field" },
-                  { view: "button", value: "Save Changes", css: "webix_primary save-button", click: function () {
-                    if (!$$("personal_form").validate()) {
-                      webix.message({ type: "error", text: "Please complete the form" });
-                      return;
-                    }
-                    webix.message({ type: "success", text: "Personal details saved successfully" });
-                  } }
-                ]
-              }
+    
             ]
           },
           {

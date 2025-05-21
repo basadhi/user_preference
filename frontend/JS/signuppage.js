@@ -1,5 +1,10 @@
 import { apiService } from "./utils/apiService.js";
 
+// Add showView function to window scope
+window.showView = function(viewId) {
+    $$("main_content").setValue(viewId);
+};
+
 export const SignupPage = {
   id: "signup",
   scroll: "y",
@@ -9,16 +14,39 @@ export const SignupPage = {
       padding: 10,
       height: 60,
       css: "app-header",
-      elements: [
+      cols: [
         {
-          view: "icon",
+          view: "button",
+          type: "icon",
           icon: "mdi mdi-arrow-left",
+          width: 40,
+          css: "transparent-button",
           click: function() {
-            showView("home");
+            showView("home_ui");
           }
         },
-        { view: "label", label: "Create Account", css: "header-title" },
-        { width: 40 }
+        { 
+          view: "label", 
+          label: "Create Account", 
+          css: "header-title",
+          width: 200
+        },
+        {
+          view: "button",
+          type: "icon",
+          icon: "mdi mdi-home",
+          tooltip: "Go to Home Page",
+          width: 40,
+          css: "transparent-button",
+          click: function() {
+            try {
+              showView("home_ui");
+            } catch (error) {
+              console.error("Navigation error:", error);
+              window.location.href = "./index.html";
+            }
+          }
+        }
       ]
     },
     {
@@ -26,6 +54,7 @@ export const SignupPage = {
       paddingX: 15,
       paddingY: 20,
       rows: [
+        
         { height: 20 },
         {
           cols: [
@@ -84,18 +113,19 @@ export const SignupPage = {
                   on: {
                     onTimedKeyPress: function() {
                       const value = this.getValue();
+                      const passwordStrength = $$("password_strength");
                       if (value.length < 8) {
-                        $$("password_strength").define("badge", "weak");
-                        $$("password_strength").setValue("Weak password");
-                        $$("password_strength").refresh();
+                        passwordStrength.define("badge", "weak");
+                        passwordStrength.setValue("Weak password");
+                        passwordStrength.refresh();
                       } else if (value.length < 12) {
-                        $$("password_strength").define("badge", "medium");
-                        $$("password_strength").setValue("Medium password");
-                        $$("password_strength").refresh();
+                        passwordStrength.define("badge", "medium");
+                        passwordStrength.setValue("Medium password");
+                        passwordStrength.refresh();
                       } else {
-                        $$("password_strength").define("badge", "strong");
-                        $$("password_strength").setValue("Strong password");
-                        $$("password_strength").refresh();
+                        passwordStrength.define("badge", "strong");
+                        passwordStrength.setValue("Strong password");
+                        passwordStrength.refresh();
                       }
                     }
                   }

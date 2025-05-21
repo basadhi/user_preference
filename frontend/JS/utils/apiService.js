@@ -10,7 +10,7 @@ export const apiService = {
     // Add authorization header if token exists
     const token = localStorage.getItem("authToken");
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      headers["Authorization"] = `Token ${token}`;  // Changed from Bearer to Token for Django REST framework
     }
     
     const options = {
@@ -23,25 +23,33 @@ export const apiService = {
       options.body = JSON.stringify(data);
     }
     
-    const response = await fetch(url, options);
-    
-    // Parse JSON response if available
-    let responseData;
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      responseData = await response.json();
-    } else {
-      responseData = await response.text();
-    }
-    
-    // Handle API error responses
-    if (!response.ok) {
-      const error = new Error(responseData.message || "API request failed");
-      error.response = { status: response.status, data: responseData };
+    try {
+      const response = await fetch(url, options);
+      
+      // Parse JSON response if available
+      let responseData;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+      
+      // Handle API error responses
+      if (!response.ok) {
+        const error = new Error(responseData.message || "API request failed");
+        error.response = { 
+          status: response.status, 
+          data: responseData 
+        };
+        throw error;
+      }
+      
+      return responseData;
+    } catch (error) {
+      console.error("API Request Error:", error);
       throw error;
     }
-    
-    return responseData;
   },
   
   get(endpoint) {

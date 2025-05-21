@@ -1,6 +1,13 @@
 import { authenticateUser } from "./utils/dataService.js";
 //import { isMobile } from "../utils/isMobile.js";
 
+// Add showView function to window scope if not already defined
+if (!window.showView) {
+    window.showView = function(viewId) {
+        $$("main_content").setValue(viewId);
+    };
+}
+
 export const LoginPage = {
   id: "login",
   type: "space",
@@ -12,7 +19,7 @@ export const LoginPage = {
     },
     {
       view: "form",
-      id: "login_form",
+      id: "login_page_form",
       borderless: true,
       width: Math.min(window.innerWidth * 0.8, 400),
       // maxWidth: 400, // Limit form width to 400px
@@ -24,17 +31,35 @@ export const LoginPage = {
           borderless: true,
           elements: [
             {
-              view: "icon",
-              icon: "wxi-angle-left",
-              click: function () {
-                showView("home");
+                view: "button",
+                type: "icon",
+                icon: "mdi mdi-arrow-left",
+                width: 40,
+                css: "transparent-button",
+                click: function() {
+                  showView("home_ui");
+                }
               },
-            },
             {
               view: "label",
               label: "Log in / Sign in",
               align: "center",
             },
+            {
+                view: "button",
+                type: "icon",
+                icon: "mdi mdi-home",    // Using Material Design icon instead of webix icon
+                tooltip: "Go to Home Page",
+                width: 40,               // Fixed width for the button
+                click: function () {
+                  try {
+                    showView("home_ui");
+                  } catch (error) {
+                    console.error("Navigation error:", error);
+                    // window.location.href = "./index.html";
+                  }
+                },
+              }
           ],
         },
         {
@@ -69,7 +94,7 @@ export const LoginPage = {
           value: "Log in",
           height: 50,
           click: async function () {
-            const form = $$("login_form");
+            const form = $$("login_page_form");
 
             if (!form.validate()) {
               webix.message({
@@ -94,7 +119,7 @@ export const LoginPage = {
                   buttons: ["OK"],
                   callback: function (result) {
                       // Once the modal box is dismissed, navigate to the signup page
-                      window.showView("signup");
+                      showView("signup");
                   }
               });
                 
