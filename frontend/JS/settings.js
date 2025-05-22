@@ -119,10 +119,10 @@ if (!$$("settingsMobileMenu")) {
             view: "list",
             select: true,
             data: [
-                { id: "acc_settings", value: "Account", icon: "user" },
-                { id: "pr_settings", value: "Privacy", icon: "lock" },
-                { id: "not_settings", value: "Notifications", icon: "bell" },
-                { id: "theme_settings", value: "Appearance", icon: "paint-brush" }
+                { id: "account_settings_cell", value: "Account", icon: "user" },
+                { id: "privacy_settings_cell", value: "Privacy", icon: "lock" },
+                { id: "notifications_settings_cell", value: "Notifications", icon: "bell" },
+                { id: "theme_settings_cell", value: "Appearance", icon: "paint-brush" }
             ],
             template: "<div class='mobile-menu-item'><span class='webix_icon fa-#icon#'></span> #value#</div>",
             on: {
@@ -172,17 +172,17 @@ if ($$("settings")) {
       switch (key) {
         case 65: // 'A' key
           if (e.altKey) {
-            showSettingsView("acc_settings");
+            showSettingsView("account_settings_cell");
           }
           break;
         case 80: // 'P' key
           if (e.altKey) {
-            showSettingsView("pr_settings");
+            showSettingsView("privacy_settings_cell");
           }
           break;
         case 78: // 'N' key
           if (e.altKey) {
-            showSettingsView("not_settings");
+            showSettingsView("notifications_settings_cell");
           }
           break;
       }

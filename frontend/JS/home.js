@@ -1,18 +1,219 @@
 import { settings } from "./settings.js";
 
+function isUserLoggedIn() {
+    const authToken = localStorage.getItem("authToken");
+    const loggedUser = localStorage.getItem("loggedUser");
+    
+    return authToken && loggedUser && authToken.trim() !== "" && loggedUser !== "null";
+}
+
+function getLoggedUserData() {
+    try {
+        const loggedUser = localStorage.getItem("loggedUser");
+        if (loggedUser && loggedUser !== "null") {
+            return JSON.parse(loggedUser);
+        }
+    } catch (error) {
+        console.error("Error parsing logged user data:", error);
+    }
+    return null;
+}
+
+function updateUIForLoginStatus() {
+    const settingsButton = $$("settings_button");
+    const topNavSettings = $$("top_nav_settings");
+    const topNavLogout = $$("top_nav_logout");
+    const topNavLogin = $$("top_nav_login");
+    const loggedUser = getLoggedUserData();
+    const isLoggedIn = isUserLoggedIn();
+    
+    if (settingsButton) {
+        if (isLoggedIn && loggedUser) {
+            settingsButton.show();
+        } else {
+            settingsButton.hide();
+        }
+    }
+    
+    // Update top navigation visibility
+    if (topNavSettings) {
+        if (isLoggedIn) {
+            topNavSettings.show();
+        } else {
+            topNavSettings.hide();
+        }
+    }
+    
+    if (topNavLogout) {
+        if (isLoggedIn) {
+            topNavLogout.show();
+        } else {
+            topNavLogout.hide();
+        }
+    }
+    
+    if (topNavLogin) {
+        if (!isLoggedIn) {
+            topNavLogin.show();
+        } else {
+            topNavLogin.hide();
+        }
+    }
+    
+    // Update header template to reflect current login status
+    const headerTemplate = $$("header_template");
+    if (headerTemplate) {
+        headerTemplate.refresh();
+    }
+    
+    // Update user info in top nav
+    const userInfo = $$("top_nav_user_info");
+    if (userInfo) {
+        userInfo.refresh();
+    }
+}
+
 export const HomeUI = {
     id: "home_ui",
     type: "clean",
-    scroll: true,  // Enable vertical scrolling
+    scroll: true, 
     css: "modern-home-ui",
     rows: [
+        // Top Navigation Bar
+        {
+            view: "toolbar",
+            id: "top_navigation",
+            height: 60,
+            css: "modern-top-nav",
+            cols: [
+                {
+                    view: "template",
+                    id: "app_logo",
+                    width: 200,
+                    css: "app-logo-container",
+                    template: `
+                        <div class="logo-content">
+                            <span class="mdi mdi-shield-account logo-icon"></span>
+                            <span class="logo-text">User Preferences</span>
+                        </div>
+                    `
+                },
+                {},  // Spacer to push right content to the right
+                {
+                    view: "template",
+                    id: "top_nav_user_info",
+                    width: 150,
+                    height: 40,
+                    css: "user-info-container",
+                    template: function() {
+                        const loggedUser = getLoggedUserData();
+                        const isLoggedIn = isUserLoggedIn();
+                        
+                        if (isLoggedIn && loggedUser) {
+                            return `
+                                <div class="user-info">
+                                    <div class="user-avatar">
+                                        <img class="avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&h=120&fit=crop&auto=format" alt="User Avatar" />
+                                    </div>
+                                    <div class="user-details">
+                                        <span class="user-name">${loggedUser.first_name || loggedUser.username || 'User'}</span>
+                                        <span class="user-status">Online</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        return '';
+                    }
+                },
+                {
+                    view: "button",
+                    id: "top_nav_login",
+                    type: "icon",
+                    icon: "mdi mdi-login",
+                    width: 40,
+                    height: 40,
+                    css: "webix_primary top-nav-btn",
+                    tooltip: "Login",
+                    hidden: isUserLoggedIn(),
+                    click: function() {
+                        try {
+                            $$("main_content").setValue("login");
+                        } catch (error) {
+                            console.error("Navigation error:", error);
+                            window.showView && window.showView("login");
+                        }
+                    }
+                },
+                {
+                    view: "button",
+                    id: "top_nav_settings",
+                    type: "icon",
+                    icon: "mdi mdi-cog",
+                    width: 40,
+                    height: 40,
+                    hotkey: "s",
+                    css: "webix_info top-nav-btn",
+                    tooltip: "Settings",
+                    hidden: !isUserLoggedIn(),
+                    click: function() {
+                        try {
+                            $$("main_content").setValue("settings_page");
+                        } catch (error) {
+                            console.error("Navigation error:", error);
+                            window.showView && window.showView("settings_page");
+                        }
+                    }
+                },
+                {
+                    view: "button",
+                    id: "top_nav_logout",
+                    type: "icon",
+                    icon: "mdi mdi-logout",
+                    width: 40,
+                    height: 40,
+                    css: "webix_danger top-nav-btn",
+                    tooltip: "Logout",
+                    hidden: !isUserLoggedIn(),
+                    click: async function() {
+                        try {
+                            const { logoutUser } = await import("./utils/dataService.js");
+                            
+                            await logoutUser();
+                            
+                            webix.message({ type: "success", text: "Logged out successfully!" });
+                            
+                            updateUIForLoginStatus();
+                            
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1000);
+                            
+                        } catch (error) {
+                            console.error("Logout error:", error);
+                            localStorage.removeItem("authToken");
+                            localStorage.removeItem("loggedUser");
+                            sessionStorage.removeItem("currentLoggedin");
+                            
+                            webix.message({ type: "info", text: "Logged out locally" });
+                            updateUIForLoginStatus();
+                            location.reload();
+                        }
+                    }
+                },
+                { width: 20 }  // Right margin
+            ]
+        },
+        
         // Modern Header with background image and welcome text
         {
             view: "template",
-            height: 400,
+            id: "header_template",
+            height: 325,
             css: "modern-header-banner",
             template: function() {
-                const loggedUser = JSON.parse(localStorage.getItem("loggedUser") || "null");
+                const loggedUser = getLoggedUserData();
+                const isLoggedIn = isUserLoggedIn();
+                
                 return `
                     <div class="header-content">
                         <div class="header-content-inner">
@@ -21,9 +222,17 @@ export const HomeUI = {
                             </div>
                             <div class="header-text">
                                 <h1 class="header-title">
-                                    ${loggedUser ? `Welcome back, ${loggedUser.first_name}!` : "Welcome to User Preferences!"}
+                                    ${isLoggedIn && loggedUser 
+                                        ? `Welcome back, ${loggedUser.first_name || loggedUser.username || 'User' || userProfile.full_name }!` 
+                                        : "Welcome to User Preferences!"
+                                    }
                                 </h1>
-                                <p class="subtitle">Your personal preferences at a glance</p>
+                                <p class="subtitle">
+                                    ${isLoggedIn 
+                                        ? "Your personal preferences at a glance" 
+                                        : "Please log in to access your personalized dashboard"
+                                    }
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -31,14 +240,13 @@ export const HomeUI = {
             }
         },
 
-        // Main content area with responsive layout
+        // Main Content Area
         {
             view: "scrollview",
             scroll: "y",
             body: {
                 type: "clean",
                 rows: [
-                    
                     // Card layout for content
                     {
                         type: "clean",
@@ -52,51 +260,110 @@ export const HomeUI = {
                                     {
                                         view: "form",
                                         id: "login_form",
+                                        hidden: isUserLoggedIn(),
                                         css: "modern-login-card",
                                         elements: [
                                             {
                                                 view: "template",
                                                 height: 70,
-                                                // css: "form-header",
-                                                template: "<h2>Account Access</h2>"
+                                                hidden: isUserLoggedIn(),
+                                                template: function() {
+                                                    return isUserLoggedIn() 
+                                                        ? "<h2>Account Dashboard</h2>" 
+                                                        : "<h2>Account Access</h2>";
+                                                }
                                             },
                                             {
                                                 view: "button",
+                                                id: "login_button",
                                                 value: "Login",
+                                                hidden: isUserLoggedIn(),
                                                 icon: "mdi mdi-login",
                                                 css: "webix_primary btn-modern",
                                                 height: 50,
                                                 click: function() {
-                                                    $$("main_content").setValue("login");
+                                                    try {
+                                                        $$("main_content").setValue("login");
+                                                    } catch (error) {
+                                                        console.error("Navigation error:", error);
+                                                        window.showView && window.showView("login");
+                                                    }
                                                 }
                                             },
                                             { height: 15 },
                                             {
                                                 view: "button",
+                                                id: "signup_button",
                                                 value: "Sign Up",
+                                                hidden: isUserLoggedIn(),
                                                 icon: "mdi mdi-account-plus",
                                                 css: "webix_secondary btn-modern",
                                                 height: 50,
                                                 click: function() {
-                                                    $$("main_content").setValue("signup");
+                                                    try {
+                                                        $$("main_content").setValue("signup");
+                                                    } catch (error) {
+                                                        console.error("Navigation error:", error);
+                                                        window.showView && window.showView("signup");
+                                                    }
                                                 }
                                             },
-                                            { height: 15 },
-                                            {
-                                                view: "button",
-                                                id: "settings_button",
-                                                value: "Settings",
-                                                icon: "mdi mdi-cog",
-                                                hidden: false,
-                                                css: "webix_info btn-modern",
-                                                height: 50,
-                                                click: function() {
-                                                    $$("main_content").setValue("settings_page");
-                                                }
-                                            }
+                                            // { height: 15 },
+                                            // {
+                                            //     view: "button",
+                                            //     id: "settings_button",
+                                            //     value: "Settings",
+                                            //     icon: "mdi mdi-cog",
+                                            //     hidden: true,
+                                            //     css: "webix_info btn-modern",
+                                            //     height: 50,
+                                            //     click: function() {
+                                            //         try {
+                                            //             $$("main_content").setValue("settings_page");
+                                            //         } catch (error) {
+                                            //             console.error("Navigation error:", error);
+                                            //             window.showView && window.showView("settings_page");
+                                            //         }
+                                            //     }
+                                            // },
+                                            // { height: 15 },
+                                            // {
+                                            //     view: "button",
+                                            //     id: "logout_button",
+                                            //     value: "Logout",
+                                            //     icon: "mdi mdi-logout",
+                                            //     hidden: true,
+                                            //     css: "webix_danger btn-modern",
+                                            //     height: 50,
+                                            //     click: async function() {
+                                            //         try {
+                                            //             const { logoutUser } = await import("./utils/dataService.js");
+                                                        
+                                            //             await logoutUser();
+                                                        
+                                            //             webix.message({ type: "success", text: "Logged out successfully!" });
+                                                        
+                                            //             updateUIForLoginStatus();
+                                                        
+                                            //             setTimeout(() => {
+                                            //                 location.reload();
+                                            //             }, 1000);
+                                                        
+                                            //         } catch (error) {
+                                            //             console.error("Logout error:", error);
+                                            //             localStorage.removeItem("authToken");
+                                            //             localStorage.removeItem("loggedUser");
+                                            //             sessionStorage.removeItem("currentLoggedin");
+                                                        
+                                            //             webix.message({ type: "info", text: "Logged out locally" });
+                                            //             updateUIForLoginStatus();
+                                            //             location.reload();
+                                            //         }
+                                            //     }
+                                            // }
                                         ]
                                     },
-                                    { height: 30 }  // Bottom spacing
+                                    // { height: 30 }  // Bottom spacing
                                 ]
                             },
                             { width: 30 },  // Spacing between columns
@@ -107,10 +374,13 @@ export const HomeUI = {
                                 rows: [
                                     {
                                         view: "template",
+                                        id: "info_card_template",
                                         height: 180,
                                         css: "modern-info-card",
                                         template: function() {
-                                            const loggedUser = JSON.parse(localStorage.getItem("loggedUser") || "null");
+                                            const loggedUser = getLoggedUserData();
+                                            const isLoggedIn = isUserLoggedIn();
+                                            
                                             return `
                                                 <div class="info-content">
                                                     <div class="info-icon-container">
@@ -118,8 +388,8 @@ export const HomeUI = {
                                                     </div>
                                                     <div class="info-text">
                                                         <h3>Quick Info</h3>
-                                                        <p>${loggedUser
-                                                            ? "Access and adjust your security preferences. Manage your account settings and notification preferences from the settings panel."
+                                                        <p>${isLoggedIn && loggedUser
+                                                            ? `Welcome ${loggedUser.username || loggedUser.email}! Access and adjust your security preferences. Manage your account settings and notification preferences from the settings panel.`
                                                             : "Log in or sign up to access your personalized dashboard and security settings."}
                                                         </p>
                                                     </div>
@@ -161,18 +431,18 @@ export const HomeUI = {
     ],
     on: {
         onShow: function() {
-            const loggedUser = JSON.parse(localStorage.getItem("loggedUser") || "null");
-            const settingsButton = $$("settings_button");
-            
-            if (loggedUser) {
-                settingsButton.show();
-            } else {
-                settingsButton.hide();
-            }
+            // Update UI based on current login status
+            updateUIForLoginStatus();
             
             // Add responsive behavior
             this.adjustLayout();
             webix.event(window, "resize", () => this.adjustLayout());
+        },
+        onAfterShow: function() {
+            // Double-check login status after view is fully shown
+            setTimeout(() => {
+                updateUIForLoginStatus();
+            }, 100);
         }
     },
     adjustLayout: function() {
@@ -181,131 +451,15 @@ export const HomeUI = {
     }
 };
 
-// Add these CSS styles to your stylesheet
-/*
-.modern-home-ui {
-    background-color: #f5f7fa;
-    font-family: 'Roboto', sans-serif;
+// Listen for storage changes (when user logs in/out in another tab)
+if (typeof window !== 'undefined') {
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'authToken' || e.key === 'loggedUser') {
+            // Update UI when storage changes
+            updateUIForLoginStatus();
+        }
+    });
+    
+    // Make the update function globally available for use in other components
+    window.updateHomeUIForLoginStatus = updateUIForLoginStatus;
 }
-
-.modern-header-banner {
-    background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.header-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    color: white;
-    padding: 0 20px;
-}
-
-.header-content-inner {
-    display: flex;
-    align-items: center;
-    max-width: 1200px;
-    width: 100%;
-}
-
-.avatar-container {
-    margin-right: 20px;
-}
-
-.avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    border: 4px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.header-text {
-    flex: 1;
-}
-
-.header-title {
-    font-size: 32px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.subtitle {
-    font-size: 18px;
-    font-weight: 300;
-    margin: 0;
-    opacity: 0.9;
-}
-
-.modern-login-card, .modern-info-card, .modern-feature-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    padding: 20px;
-}
-
-.form-header h2 {
-    font-size: 22px;
-    font-weight: 500;
-    color: #333;
-    margin: 0;
-    text-align: center;
-}
-
-.btn-modern {
-    border-radius: 8px !important;
-    font-weight: 500 !important;
-    font-size: 16px !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
-    transition: all 0.2s ease !important;
-}
-
-.btn-modern:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
-}
-
-.info-content, .feature-content {
-    display: flex;
-    align-items: flex-start;
-    padding: 5px;
-}
-
-.info-icon-container, .feature-icon-container {
-    margin-right: 15px;
-}
-
-.info-icon, .feature-icon {
-    font-size: 36px;
-    color: #8E54E9;
-}
-
-.info-text h3, .feature-text h3 {
-    font-size: 20px;
-    font-weight: 500;
-    color: #333;
-    margin: 0 0 10px 0;
-}
-
-.info-text p {
-    font-size: 15px;
-    line-height: 1.5;
-    color: #666;
-    margin: 0;
-}
-
-.feature-list {
-    margin: 10px 0 0 0;
-    padding-left: 20px;
-    color: #666;
-}
-
-.feature-list li {
-    margin-bottom: 6px;
-    font-size: 14px;
-}
-*/

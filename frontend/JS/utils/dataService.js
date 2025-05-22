@@ -2,16 +2,16 @@ import { apiService } from './apiService.js';
 
 export async function authenticateUser(email, password) {
   try {
-    const response = await apiService.post('/api/auth/login/', {
-      email,
-      password
+    const response = await apiService.post('/login/', {
+      email: email,
+      password: password
     });
     
     if (response.token) {
-      // Store the token
+     
       localStorage.setItem('authToken', response.token);
       
-      // Store user data
+     
       const userData = {
         id: response.user.id,
         email: response.user.email,
@@ -39,7 +39,7 @@ export async function authenticateUser(email, password) {
 
 export async function registerUser(userData) {
   try {
-    const response = await apiService.post('/api/auth/register/', {
+    const response = await apiService.post('/signup/', {
       email: userData.email,
       password: userData.password,
       password2: userData.password, // For confirmation

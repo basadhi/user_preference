@@ -1,149 +1,177 @@
 :root {
+    /* Light theme variables */
     --bg-color: #ffffff;
-    --text-color: #000000;
-    --test-btn-color: #039c2f;
-    --nav-text-color: #061e6a;
-    --login-des-color: #0a0a0a;
+    --bg-secondary: #e5edf5;
+    --text-color: #212529;
+    --text-secondary: #6c757d;
+    --test-btn-color: #28a745;
+    --nav-text-color: #495057;
+    --login-des-color: #343a40;
     --webix-font-family: 'Arial', sans-serif;
+    --webix-primary: #667eea;
+    --border-color: #dee2e6;
 }
 
+/* Dark theme variables */
+.dark-theme {
+    --bg-color: #1a1a1a;
+    --bg-secondary: #2d2d2d;
+    --text-color: #1e2933;
+    --text-secondary: #b3b3b3;
+    --test-btn-color: #fd7e14;
+    --nav-text-color: #ffffff;
+    --login-des-color: #f0f0f0;
+    --webix-primary: #7c3aed;
+    --border-color: #495057;
+}
+
+/* High contrast theme variables */
+.high-contrast-theme {
+    --bg-color: #000000;
+    --bg-secondary: #1a1a1a;
+    --text-color: #f57777;
+    --text-secondary: #ffff00;
+    --test-btn-color: #00ff00;
+    --nav-text-color: #ffffff;
+    --login-des-color: #ffffff;
+    --webix-primary: #00ffff;
+    --border-color: #ffffff;
+}
+
+/* Base font family application */
 body,
 .webix_view,
 .webix_el_box,
 .webix_el_text,
 .webix_el_label {
-  font-family: var(--webix-font-family);
+    font-family: var(--webix-font-family);
 }
 
-.dark-mode {
-    --bg-color: #222222;
-    --text-color: #ede7e7;
-    --test-btn-color: #9c3b03;
-    --nav-text-color: #fcfcfc;
-    --login-des-color: #ffffff;
-   
-}
-
-.test-btn .webix_button {
-    background-color: var(--test-btn-color) !important;
-    color: #333;
-}
-
-.navContainer .webix_el_button .webix_button {
-    color: var(--nav-text-color) !important;
-}
-
+/* Base view styling */
 .webix_view {
     background-color: var(--bg-color) !important;
     color: var(--text-color) !important;
 }
 
+/* Button styling */
+.test-btn .webix_button {
+    background-color: var(--test-btn-color) !important;
+    color: #ffffff !important;
+    border: none;
+    border-radius: 8px;
+}
+
+.test-btn .webix_button:hover {
+    opacity: 1.0;
+}
+
+/* Navigation styling */
+.navContainer .webix_el_button .webix_button {
+    color: var(--nav-text-color) !important;
+    background: transparent !important;
+}
+
+.navContainer .webix_el_button .webix_button:hover {
+    background: var(--bg-secondary) !important;
+}
+
+/* Login container styling */
 .login-container .description {
     color: var(--login-des-color) !important;
 }
 
-
+/* Header styling */
 .webix_header {
     font-size: 20px;
     font-weight: bold;
     color: white;
-  }
-  button.webix_primary {
-    background-color: #0e3eb7;
+}
+
+/* Primary button styling */
+button.webix_primary {
+    background-color: var(--webix-primary);
     color: white;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-  }
-  button.webix_primary:hover {
-    background-color: #6763be;
-  }
+}
 
-  /* Base Webix adjustments */
-.dark-theme .webix_view {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    color: #dd1212 !important;
-  }
-  
-  .light-theme .webix_view {
-    background-color: #ffffff !important;
-    color: #111 !important;
-  }
-  .high-contrast-theme .webix_view {
-    background-color: #000000 !important;
-    color: #4211f1 !important;
-    --webix-primary: #0dee76 !important;
+button.webix_primary:hover {
+    opacity: 0.9;
+}
 
-  }
-  
-  /* Style for list view */
-  .dark-theme .webix_list_item {
-    background-color: #2c2c2c !important;
-    color: #e0e0e0 !important;
-  }
-  .light-theme .webix_list_item {
-    background-color: #f7f7f7 !important;
-    color: #111 !important;
-  }
-  
-  /* Optional: highlight selected list item */
-  .webix_list_item.webix_selected {
-    background-color: var(--webix-primary, #6e2289) !important;
+/* List item styling */
+.webix_list_item {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+}
+
+.webix_list_item.webix_selected {
+    background-color: var(--webix-primary) !important;
     color: #fff !important;
-  }
-  
-  /* Customize toolbar */
-  .dark-theme .webix_toolbar {
-    background-color: #2a2a2a !important;
-    border-bottom: 1px solid #444;
-  }
-  
-  .light-theme .webix_toolbar {
-    background-color: #f0f0f0 !important;
-    border-bottom: 1px solid #ddd;
-  }
-  
+}
+
+/* Toolbar styling */
+.webix_toolbar {
+    background-color: var(--bg-secondary) !important;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Transparent button */
 .transparent-button {
     background: transparent !important;
     border: none !important;
-    color: #333 !important;
+    color: var(--text-color) !important;
 }
 
 .transparent-button:hover {
-    background: rgba(0, 0, 0, 0.05) !important;
+    background: var(--bg-secondary) !important;
 }
 
+/* App header */
 .app-header {
-    background: #fff;
-    border-bottom: 1px solid #e0e0e0;
+    background: var(--bg-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .header-title {
     font-size: 18px;
     font-weight: 500;
-    color: #333;
+    color: var(--text-color);
     text-align: center;
 }
 
-/* Ensure Material Design Icons are visible */
+/* MDI icons */
 .mdi {
     font-size: 24px;
     line-height: 1;
     vertical-align: middle;
 }
-  
+
+/* Modern home UI */
 .modern-home-ui {
-    background-color: #f5f7fa;
-    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-color);
+    font-family: var(--webix-font-family);
 }
 
+/* Header banner */
 .modern-header-banner {
     background: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
     height: 400px !important;
+}
+
+/* Dark theme header banner */
+.dark-theme .modern-header-banner {
+    background: linear-gradient(135deg, #2d2d2d 0%, var(--webix-primary) 100%);
+}
+
+/* High contrast header banner */
+.high-contrast-theme .modern-header-banner {
+    background: linear-gradient(135deg, #000000 0%, var(--webix-primary) 100%);
+    border: 2px solid var(--webix-primary);
 }
 
 .header-content {
@@ -182,6 +210,11 @@ body,
     background-color: #fff;
 }
 
+/* High contrast avatar */
+.high-contrast-theme .avatar {
+    border: 4px solid var(--webix-primary);
+}
+
 .header-text {
     flex: 1;
     color: white;
@@ -203,7 +236,75 @@ body,
     color: white;
 }
 
-/* Responsive adjustments */
+/* High contrast subtitle */
+.high-contrast-theme .subtitle {
+    color: var(--text-secondary);
+}
+
+.top-nav-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+.top-nav-btn:active {
+    transform: translateY(0) !important;
+}
+
+/* Form inputs */
+.webix_el_text input,
+.webix_el_combo input {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.webix_el_text input:focus,
+.webix_el_combo input:focus {
+    border-color: var(--webix-primary) !important;
+}
+
+/* Dark theme specific text colors */
+.dark-theme .webix_view,
+.dark-theme .webix_list_item,
+.dark-theme .webix_el_label,
+.dark-theme .webix_button {
+    color: var(--text-color) !important;
+}
+
+.dark-theme .webix_list_item:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+.dark-theme .webix_toolbar {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+/* High contrast theme specific text colors */
+.high-contrast-theme .webix_view,
+.high-contrast-theme .webix_list_item,
+.high-contrast-theme .webix_el_label,
+.high-contrast-theme .webix_button {
+    color: var(--text-color) !important;
+}
+
+.high-contrast-theme .webix_list_item:hover {
+    background-color: var(--bg-secondary) !important;
+}
+
+.high-contrast-theme .webix_toolbar {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-color) !important;
+}
+
+/* High contrast borders */
+.high-contrast-theme .webix_view,
+.high-contrast-theme .webix_list_item,
+.high-contrast-theme input {
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
     .header-content-inner {
         flex-direction: column;
@@ -223,5 +324,3 @@ body,
         font-size: 18px;
     }
 }
-  
-  

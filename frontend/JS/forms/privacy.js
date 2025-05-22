@@ -183,6 +183,11 @@ export const PrivacyForm = {
                     view: "button", 
                     value: "Save Changes", 
                     css: "webix_primary",
+                    tooltip: "Save Privacy Settings(alt+s)",
+                    hotkey: "alt+s",
+                    minWidth: 120,
+                    height: 45,
+                    css: "primary-button",
                     click: function() {
                         webix.confirm({
                             title: "Save Privacy Settings",

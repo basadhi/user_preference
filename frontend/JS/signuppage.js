@@ -1,6 +1,6 @@
 import { apiService } from "./utils/apiService.js";
 
-// Add showView function to window scope
+
 window.showView = function(viewId) {
     $$("main_content").setValue(viewId);
 };
@@ -116,15 +116,15 @@ export const SignupPage = {
                       const passwordStrength = $$("password_strength");
                       if (value.length < 8) {
                         passwordStrength.define("badge", "weak");
-                        passwordStrength.setValue("Weak password");
+                        passwordStrength.define("value", "Weak password");
                         passwordStrength.refresh();
                       } else if (value.length < 12) {
                         passwordStrength.define("badge", "medium");
-                        passwordStrength.setValue("Medium password");
+                        passwordStrength.define("value", "Medium password");
                         passwordStrength.refresh();
                       } else {
                         passwordStrength.define("badge", "strong");
-                        passwordStrength.setValue("Strong password");
+                        passwordStrength.define("value", "Strong password");
                         passwordStrength.refresh();
                       }
                     }
@@ -197,11 +197,13 @@ export const SignupPage = {
                       this.setValue("Creating account...");
                       
                       // Call Django API
-                      apiService.post("/api/auth/register/", {
-                        first_name: values.first_name,
-                        last_name: values.last_name,
+                      apiService.post("/api/auth/signup/", {
+                        username: values.email,
                         email: values.email,
-                        password: values.password
+                        password: values.password,
+                        password2: values.password,
+                        first_name: values.first_name,
+                        last_name: values.last_name
                       })
                       .then(response => {
                         webix.message({
@@ -281,69 +283,3 @@ export const SignupPage = {
   ]
 };
 
-// Create an API service utility if you don't have one already
-// This should be in ../utils/apiService.js
-/*
-export const apiService = {
-  baseUrl: "http://localhost:8000", // Change to your Django backend URL
-
-  async request(endpoint, method = "GET", data = null) {
-    const url = this.baseUrl + endpoint;
-    const headers = {
-      "Content-Type": "application/json"
-    };
-    
-    // Add authorization header if token exists
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
-    
-    const options = {
-      method,
-      headers,
-      credentials: "include" // Include cookies for sessions if needed
-    };
-    
-    if (data) {
-      options.body = JSON.stringify(data);
-    }
-    
-    const response = await fetch(url, options);
-    
-    // Parse JSON response if available
-    let responseData;
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      responseData = await response.json();
-    } else {
-      responseData = await response.text();
-    }
-    
-    // Handle API error responses
-    if (!response.ok) {
-      const error = new Error(responseData.message || "API request failed");
-      error.response = { status: response.status, data: responseData };
-      throw error;
-    }
-    
-    return responseData;
-  },
-  
-  get(endpoint) {
-    return this.request(endpoint);
-  },
-  
-  post(endpoint, data) {
-    return this.request(endpoint, "POST", data);
-  },
-  
-  put(endpoint, data) {
-    return this.request(endpoint, "PUT", data);
-  },
-  
-  delete(endpoint) {
-    return this.request(endpoint, "DELETE");
-  }
-};
-*/
