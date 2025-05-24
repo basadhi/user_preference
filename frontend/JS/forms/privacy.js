@@ -1,3 +1,5 @@
+import { apiService } from '../utils/apiService.js';
+
 export const PrivacyForm = {
     id: "privacy_settings_cell",
     view: "scrollview",
@@ -35,7 +37,12 @@ export const PrivacyForm = {
                                 { id: "everyone", value: "Everyone" },
                                 { id: "friends", value: "Friends Only" },
                                 { id: "private", value: "Only Me" }
-                            ]
+                            ],
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         },
                         {
                             view: "select",
@@ -47,7 +54,12 @@ export const PrivacyForm = {
                                 { id: "no_one", value: "No One" },
                                 { id: "friends", value: "Friends Only" },
                                 { id: "everyone", value: "Everyone" }
-                            ]
+                            ],
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         }
                     ]
                 },
@@ -72,7 +84,12 @@ export const PrivacyForm = {
                                 { id: "public", value: "Public" },
                                 { id: "friends", value: "Friends Only" },
                                 { id: "private", value: "Only Me" }
-                            ]
+                            ],
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         },
                         {
                             view: "select",
@@ -84,7 +101,12 @@ export const PrivacyForm = {
                                 { id: "everyone", value: "Everyone" },
                                 { id: "friends_of_friends", value: "Friends of Friends" },
                                 { id: "no_one", value: "No One" }
-                            ]
+                            ],
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         }
                     ]
                 }
@@ -111,6 +133,11 @@ export const PrivacyForm = {
                             name: "search_engine_visibility",
                             labelWidth: 0,
                             value:0,
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         },
                         {
                             view: "checkbox",
@@ -118,6 +145,11 @@ export const PrivacyForm = {
                             name: "third_party_access",
                             labelWidth: 0,
                             value:0,
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         },
                         {
                             view: "checkbox",
@@ -125,6 +157,11 @@ export const PrivacyForm = {
                             name: "active_status_visibility",
                             labelWidth: 0,
                             value:0,
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         },
                         {
                             view: "checkbox",
@@ -132,6 +169,11 @@ export const PrivacyForm = {
                             name: "profile_view_tracking",
                             labelWidth: 0,
                             value:0,
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         }
                     ]
                 },
@@ -158,7 +200,12 @@ export const PrivacyForm = {
                                 { id: "6_months", value: "6 Months" },
                                 { id: "1_year", value: "1 Year" },
                                 { id: "forever", value: "Forever" }
-                            ]
+                            ],
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         },
                         {
                             view: "select",
@@ -170,7 +217,12 @@ export const PrivacyForm = {
                                 { id: "full", value: "Full Export" },
                                 { id: "minimal", value: "Minimal Export" },
                                 { id: "no_export", value: "No Export" }
-                            ]
+                            ],
+                            on: {
+                                onChange: function() {
+                                    savePreferences();
+                                }
+                            }
                         }
                     ]
                 }
@@ -189,6 +241,7 @@ export const PrivacyForm = {
                     height: 45,
                     css: "primary-button",
                     click: function() {
+                        savePreferences();
                         webix.confirm({
                             title: "Save Privacy Settings",
                             text: "Are you sure you want to save these privacy settings?",
@@ -198,6 +251,7 @@ export const PrivacyForm = {
                                         type: "success",
                                         text: "Privacy settings updated successfully!"
                                     });
+                                    console.log(result);
                                 }
                             }
                         });
@@ -254,4 +308,63 @@ export const PrivacyForm = {
         }
     ]}
 };
+
+async function loadPreferences() {
+    try {
+        const response = await apiService.get('/preferences/');
+        if (response.data) {
+            const preferences = response.data;
+            
+            // Load profile picture settings
+            $$("profile-picture-settings").setValues({
+                profile_pic_visibility: preferences.profile_pic_visibility,
+                profile_pic_download: preferences.profile_pic_download
+            });
+            
+            // Load account privacy settings
+            $$("account-privacy").setValues({
+                account_privacy: preferences.account_privacy,
+                connection_requests: preferences.connection_requests
+            });
+            
+            // Load data sharing preferences
+            $$("data-sharing-preferences").setValues({
+                search_engine_visibility: preferences.search_engine_visibility,
+                third_party_access: preferences.third_party_access,
+                active_status_visibility: preferences.active_status_visibility,
+                profile_view_tracking: preferences.profile_view_tracking
+            });
+            
+            // Load advanced privacy controls
+            $$("advanced-privacy-controls").setValues({
+                data_retention: preferences.data_retention,
+                data_export: preferences.data_export
+            });
+        }
+    } catch (error) {
+        console.error('Error loading preferences:', error);
+        webix.message({ type: "error", text: "Failed to load preferences" });
+    }
+}
+
+async function savePreferences() {
+    try {
+        const preferences = {
+            ...$$("profile-picture-settings").getValues(),
+            ...$$("account-privacy").getValues(),
+            ...$$("data-sharing-preferences").getValues(),
+            ...$$("advanced-privacy-controls").getValues()
+        };
+        
+        await apiService.put(`/preference/`, preferences, {
+            headers: {
+                'Authorization': `Token ${localStorage.getItem('authToken')}`
+            }
+        });
+        webix.message({ type: "success", text: "Privacy settings saved successfully!" });
+    } catch (error) {
+        console.error('Error saving preferences:', error);
+        webix.message({ type: "error", text: "Failed to save preferences" });
+    }
+}
 

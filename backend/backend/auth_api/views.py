@@ -1,9 +1,11 @@
-from rest_framework import generics, status
+from rest_framework import generics, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from .models import UserPreferences
+from .serializers import UserPreferencesSerializer
 
 from .serializers import RegisterSerializer, LoginSerializer, UserSerializer
 from django.contrib.auth.models import User
@@ -21,8 +23,10 @@ class RegisterView(generics.CreateAPIView):
         return Response({
             "user": UserSerializer(user, context=self.get_serializer_context()).data,
             "token": token.key,
-            "message": "User registered successfully"
+            "message": "User registered successfully",
+            
         }, status=status.HTTP_201_CREATED)
+
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -37,10 +41,12 @@ class LoginView(APIView):
             user = User.objects.filter(email=serializer.validated_data['email']).first()
             if user and user.check_password(serializer.validated_data['password']):
                 token, created = Token.objects.get_or_create(user=user)
+                preferences, created = UserPreferences.objects.get_or_create(user=user)
                 return Response({
                     "user": UserSerializer(user).data,
                     "token": token.key,
-                    "message": "Login successful"
+                    "message": "Login successful",
+                    "preferences": UserPreferencesSerializer(preferences).data
                 })
             else:
                 return Response({
@@ -68,6 +74,26 @@ class LogoutView(APIView):
 class UserProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
-    
     def get_object(self):
         return self.request.user
+
+class UserPreferencesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        preferences, _ = UserPreferences.objects.get_or_create(user=request.user)
+        serializer = UserPreferencesSerializer(preferences)
+        return Response(serializer.data)
+
+    def put(self, request):
+        print("here1")
+        preferences, _ = UserPreferences.objects.get_or_create(user=request.user)
+        serializer = UserPreferencesSerializer(preferences, data=request.data, partial=True)
+        if serializer.is_valid():
+            print("here2")
+            serializer.save()
+            print(serializer.data)
+            return Response(serializer.data)
+        print("here3")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

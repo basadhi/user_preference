@@ -197,7 +197,7 @@ export const SignupPage = {
                       this.setValue("Creating account...");
                       
                       // Call Django API
-                      apiService.post("/api/auth/signup/", {
+                      apiService.post("/signup/", {
                         username: values.email,
                         email: values.email,
                         password: values.password,
@@ -282,4 +282,3 @@ export const SignupPage = {
     }
   ]
 };
-

@@ -1,3 +1,5 @@
+import { apiService } from '../utils/apiService.js';
+
 export const NotificationsForm = {
   id: "notifications_settings_cell",
   responsive: true,
@@ -73,7 +75,12 @@ export const NotificationsForm = {
                         tooltip: "Receive notifications via email",
                         tabFocus: true,
                         height: 45,
-                        css: "modern-checkbox"
+                        css: "modern-checkbox",
+                        on: {
+                          onChange: function() {
+                            savePreferences();
+                          }
+                        }
                       },
                       {
                         view: "checkbox",
@@ -83,7 +90,12 @@ export const NotificationsForm = {
                         tooltip: "Receive notifications via text message",
                         tabFocus: true,
                         height: 45,
-                        css: "modern-checkbox"
+                        css: "modern-checkbox",
+                        on: {
+                          onChange: function() {
+                            savePreferences();
+                          }
+                        }
                       },
                       {
                         view: "checkbox",
@@ -93,7 +105,12 @@ export const NotificationsForm = {
                         tooltip: "Receive push notifications on your device",
                         tabFocus: true,
                         height: 45,
-                        css: "modern-checkbox"
+                        css: "modern-checkbox",
+                        on: {
+                          onChange: function() {
+                            savePreferences();
+                          }
+                        }
                       },
                       {
                         view: "checkbox",
@@ -134,7 +151,12 @@ export const NotificationsForm = {
                         tabFocus: true,
                         tooltip: "Choose your notification sound",
                         height: 45,
-                        css: "modern-combo"
+                        css: "modern-combo",
+                        on: {
+                          onChange: function() {
+                            savePreferences();
+                          }
+                        }
                       },
                       {
                         view: "segmented",
@@ -702,3 +724,54 @@ export const NotificationsForm = {
     }
   }
 };
+
+async function loadPreferences() {
+  try {
+    const response = await apiService.get('/preferences/', 
+      {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      }
+    );
+    if (response.data) {
+      const preferences = response.data;
+      
+      $$("notificationForm").setValues({
+        email_notifications: preferences.email_notifications,
+        sms_notifications: preferences.sms_notifications,
+        push_notifications: preferences.push_notifications,
+        notification_sound: preferences.notification_sound,
+        notification_vibration: preferences.notification_vibration,
+        notification_light: preferences.notification_light
+      });
+    }
+  } catch (error) {
+    console.error('Error loading preferences:', error);
+    webix.message({ type: "error", text: "Failed to load preferences" });
+  }
+}
+
+async function savePreferences() {
+  try {
+    const form = $$("notificationForm");
+    const values = form.getValues();
+    
+    const preferences = {
+      email_notifications: values.email_notifications,
+      sms_notifications: values.sms_notifications,
+      push_notifications: values.push_notifications,
+      notification_sound: values.notification_sound,
+      notification_vibration: values.notification_vibration,
+      notification_light: values.notification_light
+    };
+    
+    await apiService.put('/preferences/', preferences, 
+      {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      }
+    );
+    webix.message({ type: "success", text: "Notification preferences saved successfully!" });
+  } catch (error) {
+    console.error('Error saving preferences:', error);
+    webix.message({ type: "error", text: "Failed to save preferences" });
+  }
+}

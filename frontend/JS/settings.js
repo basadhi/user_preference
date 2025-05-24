@@ -1,7 +1,7 @@
-import { AccountForm } from "./forms/account.js";
-import { NotificationsForm } from "./forms/notifications.js";
-import { PrivacyForm } from "./forms/privacy.js";
-import { ThemeForm } from "./forms/theme.js";
+import { AccountForm } from "../js/forms/account.js";
+import { NotificationsForm } from "../js/forms/notifications.js";
+import { PrivacyForm } from "../forms/privacy.js";
+import { ThemeForm } from "../js/forms/theme.js";
 
 export const settings = {
     id: "settings_page",
@@ -18,7 +18,7 @@ export const settings = {
                 icon: "mdi mdi-arrow-left",
                 label: "Back",
                 width: 100,
-                css: "webix_secondary",
+                css: "webix_primary",
                 click: function () {
                     $$("main_content").setValue("home_ui"); // ✅ Replace with your home view ID
                 }

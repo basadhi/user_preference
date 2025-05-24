@@ -1,4 +1,3 @@
-
 import { HomeUI } from "./home.js";
 import { settings } from "./settings.js";
 import { LoginPage } from "./loginpage.js";
@@ -35,6 +34,3 @@ import { SignupPage } from "./signuppage.js";
     });
 
     // $$("nav_list").select("account_settings_cell"); // Set default selected tab
-
-
-

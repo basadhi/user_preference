@@ -1,7 +1,7 @@
 import { authenticateUser } from "./utils/dataService.js";
-//import { isMobile } from "../utils/isMobile.js";
+import { initializePreferences } from "../js/forms/theme.js";
 
-// Add showView function to window scope if not already defined
+
 if (!window.showView) {
     window.showView = function(viewId) {
         $$("main_content").setValue(viewId);
@@ -46,15 +46,15 @@ export const LoginPage = {
             {
                 view: "button",
                 type: "icon",
-                icon: "mdi mdi-home",    // Using Material Design icon instead of webix icon
+                icon: "mdi mdi-home",    
                 tooltip: "Go to Home Page",
-                width: 40,               // Fixed width for the button
+                width: 40,               
                 click: function () {
                   try {
                     showView("home_ui");
                   } catch (error) {
                     console.error("Navigation error:", error);
-                    // window.location.href = "./index.html";
+                    
                   }
                 },
               }
@@ -107,7 +107,7 @@ export const LoginPage = {
             webix.message({type:"info", text:"Logging in...", expire: 1000});
             
             try {
-              const user = await authenticateUser(
+              const {user, preferences} = await authenticateUser(
                 values.email,
                 values.password,
               );
@@ -138,6 +138,9 @@ export const LoginPage = {
                 
                 // Store user data for session
                 sessionStorage.setItem("currentLoggedin", JSON.stringify({ email: user.email }));
+                localStorage.setItem("loggedUser", JSON.stringify(user));
+                initializePreferences();
+                // localStorage.setItem("preferences", JSON.stringify(user.preferences));
                 
                 // Navigate to home page after a short delay
                 setTimeout(() => {
@@ -161,8 +164,7 @@ export const LoginPage = {
               
               webix.message({
                 type: "error",
-                text: errorMessage,
-                expire: 3000
+                text: error.response?.data?.message || "Login failed. Try again later.",
               });
             }
           },

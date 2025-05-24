@@ -1,4 +1,9 @@
+import { apiService } from '../utils/apiService.js';
+
+const token = localStorage.getItem("authToken");
+
 export const AccountForm = {
+
   id: "account_settings_cell",
   responsive: true,
   minWidth: 320,
@@ -41,12 +46,7 @@ export const AccountForm = {
               icon: "wxi-lock",
               badge: "" 
             },
-            {
-              id: "preferences",
-              value: "Preferences",
-              icon: "wxi-cog",
-              badge: ""
-            }
+            
           ],
           on: {
             onAfterSelect: function (id) {
@@ -130,6 +130,7 @@ export const AccountForm = {
                                       document.getElementById("profile-img").src = e.target.result;
                                       localStorage.setItem("profile_image", e.target.result);
                                       $$("profile_image_container").refresh();
+                                      // showChangeIndicator("profile_image");
                                     };
                                     reader.readAsDataURL(file.file);
                                     return false;
@@ -160,14 +161,24 @@ export const AccountForm = {
                                 name: "full_name",
                                 placeholder: "Enter your full name",
                                 css: "modern-input",
-                                validate: webix.rules.isNotEmpty
+                                validate: webix.rules.isNotEmpty,
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("full_name");
+                                  }
+                                }
                               },
                               {
                                 view: "text",
                                 label: "Display Name",
                                 name: "display_name",
                                 placeholder: "How others see you",
-                                css: "modern-input"
+                                css: "modern-input",
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("display_name");
+                                  }
+                                }
                               },
                               {
                                 view: "text",
@@ -186,6 +197,11 @@ export const AccountForm = {
                                 css: "modern-input",
                                 validate: function (value) {
                                   return /^[\+]?[0-9\s\-\(\)]{10,}$/.test(value);
+                                },
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("phone");
+                                  }
                                 }
                               },
                               {
@@ -193,7 +209,12 @@ export const AccountForm = {
                                 label: "Job Title",
                                 name: "job_title",
                                 placeholder: "Your current position",
-                                css: "modern-input"
+                                css: "modern-input",
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("job_title");
+                                  }
+                                }
                               },
                               {
                                 view: "textarea",
@@ -201,7 +222,12 @@ export const AccountForm = {
                                 name: "bio",
                                 placeholder: "Tell us about yourself...",
                                 height: 80,
-                                css: "modern-textarea"
+                                css: "modern-textarea",
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("bio");
+                                  }
+                                }
                               }
                             ]
                           }
@@ -225,6 +251,7 @@ export const AccountForm = {
                             click: function () {
                               $$("profile_form").clear();
                               loadUserProfile();
+                              // clearChangeIndicators();
                             }
                           },
                           {
@@ -238,15 +265,20 @@ export const AccountForm = {
                             tooltip: "Save Profile(alt+s)",
                             hotkey: "alt+s",
                             css: "primary-button",
-                            click: function () {
+                            click: async function () {
+                              const token = localStorage.getItem("authToken");
+                              if (!token) {
+                                webix.message({ type: "error", text: "Please log in to save your profile" });
+                                return;
+                              }
+
                               const form = $$("profile_form");
                               if (!form.validate()) {
                                 webix.message({ type: "error", text: "Please fix the errors in the form" });
                                 return;
                               }
                               const values = form.getValues();
-                              sessionStorage.setItem("userProfile", JSON.stringify(values));
-                              webix.message({ type: "success", text: "Profile updated successfully!" });
+                              await saveProfile();
                             }
                           }
                         ]
@@ -287,7 +319,12 @@ export const AccountForm = {
                                 name: "date_of_birth",
                                 format: "%d %M %Y",
                                 css: "modern-input",
-                                gravity: 1
+                                gravity: 1,
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("date_of_birth");
+                                  }
+                                }
                               },
                               {
                                 width: 20
@@ -303,7 +340,12 @@ export const AccountForm = {
                                   { id: "other", value: "Other" },
                                   { id: "prefer_not_to_say", value: "Prefer not to say" }
                                 ],
-                                gravity: 1
+                                gravity: 1,
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("gender");
+                                  }
+                                }
                               }
                             ]
                           },
@@ -319,21 +361,36 @@ export const AccountForm = {
                               "Widowed",
                               "In a relationship",
                               "Other"
-                            ]
+                            ],
+                            on: {
+                              onChange: function() {
+                                // showChangeIndicator("marital_status");
+                              }
+                            }
                           },
                           {
                             view: "text",
                             label: "Occupation",
                             name: "occupation",
                             placeholder: "Your profession or job",
-                            css: "modern-input"
+                            css: "modern-input",
+                            on: {
+                              onChange: function() {
+                                // showChangeIndicator("occupation");
+                              }
+                            }
                           },
                           {
                             view: "text",
                             label: "Company",
                             name: "company",
                             placeholder: "Where do you work?",
-                            css: "modern-input"
+                            css: "modern-input",
+                            on: {
+                              onChange: function() {
+                                // showChangeIndicator("company");
+                              }
+                            }
                           },
                           {
                             view: "textarea",
@@ -341,7 +398,12 @@ export const AccountForm = {
                             name: "address",
                             placeholder: "Your full address",
                             height: 80,
-                            css: "modern-textarea"
+                            css: "modern-textarea",
+                            on: {
+                              onChange: function() {
+                                // showChangeIndicator("address");
+                              }
+                            }
                           },
                           {
                             cols: [
@@ -351,7 +413,12 @@ export const AccountForm = {
                                 name: "city",
                                 placeholder: "City",
                                 css: "modern-input",
-                                gravity: 1
+                                gravity: 1,
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("city");
+                                  }
+                                }
                               },
                               {
                                 width: 20
@@ -362,7 +429,12 @@ export const AccountForm = {
                                 name: "state",
                                 placeholder: "State",
                                 css: "modern-input",
-                                gravity: 1
+                                gravity: 1,
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("state");
+                                  }
+                                }
                               },
                               {
                                 width: 20
@@ -373,7 +445,12 @@ export const AccountForm = {
                                 name: "zip_code",
                                 placeholder: "12345",
                                 css: "modern-input",
-                                gravity: 0.7
+                                gravity: 0.7,
+                                on: {
+                                  onChange: function() {
+                                    // showChangeIndicator("zip_code");
+                                  }
+                                }
                               }
                             ]
                           },
@@ -390,7 +467,12 @@ export const AccountForm = {
                               "Germany",
                               "France",
                               "Other"
-                            ]
+                            ],
+                            on: {
+                              onChange: function() {
+                                // showChangeIndicator("country");
+                              }
+                            }
                           }
                         ]
                       },
@@ -410,6 +492,8 @@ export const AccountForm = {
                             hotkey: "alt+r",
                             click: function () {
                               $$("personal_form").clear();
+                              loadPersonalDetails();
+                              clearChangeIndicators();
                             }
                           },
                           {
@@ -423,10 +507,16 @@ export const AccountForm = {
                             css: "primary-button",
                             tooltip: "Save Details(alt+s)",
                             hotkey: "alt+s",
-                            click: function () {
-                              const values = $$("personal_form").getValues();
-                              sessionStorage.setItem("personalDetails", JSON.stringify(values));
-                              webix.message({ type: "success", text: "Personal details saved successfully!" });
+                            click: async function () {
+                              try {
+                                const values = $$("personal_form").getValues();
+                                await apiService.put('/profilefile/', values);
+                                webix.message({ type: "success", text: "Personal details saved successfully!" });
+                                clearChangeIndicators();
+                              } catch (error) {
+                                console.error('Error saving personal details:', error);
+                                webix.message({ type: "error", text: "Failed to save personal details" });
+                              }
                             }
                           }
                         ]
@@ -522,7 +612,12 @@ export const AccountForm = {
                             view: "checkbox",
                             label: "Enable Two-Factor Authentication",
                             name: "two_factor_enabled",
-                            css: "modern-checkbox"
+                            css: "modern-checkbox",
+                            on: {
+                              onChange: function() {
+                                // showChangeIndicator("two_factor_enabled");
+                              }
+                            }
                           },
                           {
                             template: `
@@ -543,14 +638,13 @@ export const AccountForm = {
                           {},
                           {
                             view: "button",
-                            value: "Update Password(alt+s)",
-                            // width: 140,
+                            value: "Update Password",
                             minWidth: 120,  
                             height: 45,
                             css: "primary-button",
                             tooltip: "Update Password(alt+s)",
                             hotkey: "alt+s",
-                            click: function () {
+                            click: async function () {
                               const form = $$("security_form");
                               const values = form.getValues();
                               
@@ -569,9 +663,15 @@ export const AccountForm = {
                                 return;
                               }
                               
-                              // Here you would typically make an API call
-                              webix.message({ type: "success", text: "Password updated successfully!" });
-                              form.setValues({ current_password: "", new_password: "", confirm_password: "" });
+                              try {
+                                await apiService.put('/profile/', values);
+                                webix.message({ type: "success", text: "Password updated successfully!" });
+                                form.setValues({ current_password: "", new_password: "", confirm_password: "" });
+                                clearChangeIndicators();
+                              } catch (error) {
+                                console.error('Error updating password:', error);
+                                webix.message({ type: "error", text: "Failed to update password" });
+                              }
                             }
                           }
                         ]
@@ -581,129 +681,148 @@ export const AccountForm = {
                 }
               ]
             },
-            {
-              // Preferences tab
-              id: "preferences",
-              rows: [
-                {
-                  template: "<div class='section-header'><h2>Preferences</h2><p>Customize your experience</p></div>",
-                  type: "header",
-                  height: 60,
-                  css: "section-title"
-                },
-                {
-                  view: "scrollview",
-                  scroll: "y",
-                  body: {
-                    rows: [
-                      {
-                        view: "form",
-                        id: "preferences_form",
-                        elementsConfig: {
-                          labelWidth: 180,
-                          labelAlign: "right"
-                        },
-                        elements: [
-                          {
-                            template: "<div class='form-section-title'>Notifications</div>",
-                            height: 40,
-                            css: "form-section-header"
-                          },
-                          {
-                            view: "checkbox",
-                            label: "Email Notifications",
-                            name: "email_notifications",
-                            css: "modern-checkbox"
-                          },
-                          {
-                            view: "checkbox",
-                            label: "SMS Notifications",
-                            name: "sms_notifications",
-                            css: "modern-checkbox"
-                          },
-                          {
-                            view: "checkbox",
-                            label: "Push Notifications",
-                            name: "push_notifications",
-                            css: "modern-checkbox"
-                          },
-                          {
-                            height: 20
-                          },
-                          {
-                            template: "<div class='form-section-title'>Display</div>",
-                            height: 40,
-                            css: "form-section-header"
-                          },
-                          {
-                            view: "richselect",
-                            label: "Theme",
-                            name: "theme",
-                            css: "modern-select",
-                            options: [
-                              "Light",
-                              "Dark",
-                              "Auto"
-                            ]
-                          },
-                          {
-                            view: "richselect",
-                            label: "Language",
-                            name: "language",
-                            css: "modern-select",
-                            options: [
-                              "English",
-                              "Spanish",
-                              "French",
-                              "German",
-                              "Chinese"
-                            ]
-                          },
-                          {
-                            view: "richselect",
-                            label: "Timezone",
-                            name: "timezone",
-                            css: "modern-select",
-                            options: [
-                              "UTC-8 (Pacific)",
-                              "UTC-5 (Eastern)",
-                              "UTC+0 (GMT)",
-                              "UTC+1 (CET)",
-                              "UTC+8 (CST)"
-                            ]
-                          }
-                        ]
-                      },
-                      {
-                        height: 30
-                      },
-                      {
-                        cols: [
-                          {},
-                          {
-                            view: "button",
-                            value: "Save Preferences",
-                            minWidth: 120,  
-                            height: 45,
-                            css: "primary-button",
-                            tooltip: "Save Preferences(alt+s)",
-                            hotkey: "alt+s",
-                            click: function () {
-                              const values = $$("preferences_form").getValues();
-                              sessionStorage.setItem("userPreferences", JSON.stringify(values));
-                              webix.message({ type: "success", text: "Preferences saved successfully!" });
-                            }
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
+            
           ]
         }
       ]
     }
-  ]
+  ],
+  // on: {
+  //   onShow: function() {
+  //     loadUserProfile();
+  //     loadPersonalDetails();
+  //     loadSecuritySettings();
+  //     // loadPreferences();
+  //   }
+  // }
 };
+
+
+// Load functions
+// async function loadUserProfile() {
+//   try {
+//     // const token = localStorage.getItem("authToken");
+//     if (!token) {
+//       webix.message({ type: "error", text: "Please log in to access your profile" });
+//       return;
+//     }
+
+//     const response = await apiService.get('/profile/');
+//     if (response.data) {
+//       $$("profile_form").setValues(response.data);
+//     }
+//   } catch (error) {
+//     console.error('Error loading profile:', error);
+//     if (error.response && error.response.status === 401) {
+//       webix.message({ type: "error", text: "Your session has expired. Please log in again." });
+//       // Redirect to login page
+//       $$("main_content").setValue("login");
+//     } else {
+//       webix.message({ type: "error", text: "Failed to load profile" });
+//     }
+//   }
+// }
+
+// async function loadPersonalDetails() {
+//   try {
+//     const response = await apiService.get('/profile/' ,
+//       {
+//         headers: {
+//           'Authorization': `Token ${token}`
+//         } 
+//       }
+//     );
+//     if (response.data) {
+//       $$("personal_form").setValues(response.data);
+//     }
+//   } catch (error) {
+//     console.error('Error loading personal details:', error);
+//     webix.message({ type: "error", text: "Failed to load personal details" });
+//   }
+// }
+
+// async function loadSecuritySettings() {
+//   try {
+//     const response = await apiService.get('/profile/');
+//     if (response.data) {
+//       $$("security_form").setValues(response.data);
+//     }
+//   } catch (error) {
+//     console.error('Error loading security settings:', error);
+//     webix.message({ type: "error", text: "Failed to load security settings" });
+//   }
+// }
+
+
+
+// async function saveProfile() {
+//   try {
+//     const token = localStorage.getItem("authToken");
+//     if (!token) {
+//       webix.message({ type: "error", text: "Please log in to save your profile" });
+//       return;
+//     }
+
+//     const form = $$("profile_form");
+//     if (!form.validate()) {
+//       webix.message({ type: "error", text: "Please fix the errors in the form" });
+//       return;
+//     }
+//     const values = form.getValues();
+//     await apiService.put('/profile/', values);
+//     webix.message({ type: "success", text: "Profile updated successfully!" });
+//     clearChangeIndicators();
+    
+  
+//     window.dispatchEvent(new CustomEvent('profileUpdated', {
+//       detail: {
+//         displayName: values.display_name,
+//         fullName: values.full_name
+//       }
+//     }));
+//   } catch (error) {
+//     console.error('Error saving profile:', error);
+//     if (error.response && error.response.status === 401) {
+//       webix.message({ type: "error", text: "Your session has expired. Please log in again." });
+   
+//       $$("main_content").setValue("login");
+//     } else {
+//       webix.message({ type: "error", text: "Failed to save profile" });
+//     }
+//   }
+// }
+
+
+const style = document.createElement('style');
+style.textContent = `
+  .changed {
+    border-color: #4CAF50 !important;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2) !important;
+  }
+
+  .change-indicator {
+    position: absolute;
+    right: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4CAF50;
+    font-size: 16px;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-50%) scale(0.8); }
+    to { opacity: 1; transform: translateY(-50%) scale(1); }
+  }
+
+  .modern-input, .modern-select, .modern-textarea {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .modern-input:focus, .modern-select:focus, .modern-textarea:focus {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+  }
+`;
+document.head.appendChild(style);
